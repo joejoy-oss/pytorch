@@ -9161,6 +9161,25 @@ class TestTorch(TestCase):
         self.assertEqual(complexdouble_storage.type(), 'torch.ComplexDoubleStorage')
         self.assertIs(complexdouble_storage.dtype, torch.complex128)
 
+        float8_storage = storage.float8_e5m2()
+        self.assertIs(float8_storage.dtype, torch.float8_e5m2)
+        self.assertEqual(float8_storage.size(), storage.size())
+        self.assertEqual(float8_storage.nbytes(), storage.size())
+        self.assertEqual(float8_storage.tolist(), [-1.0, 0.0, 1.0, 2.0, 3.0, 4.0])
+        self.assertNotEqual(float8_storage.data_ptr(), storage.data_ptr())
+        self.assertEqual(storage.tolist(), [-1, 0, 1, 2, 3, 4])
+
+        rounded_storage = torch.FloatStorage([-0.3, 0.3]).float8_e5m2()
+        self.assertEqual(rounded_storage.tolist(), [-0.3125, 0.3125])
+
+        empty_storage = torch.IntStorage([]).float8_e5m2()
+        self.assertIs(empty_storage.dtype, torch.float8_e5m2)
+        self.assertEqual(empty_storage.tolist(), [])
+
+        same_dtype_storage = float8_storage.float8_e5m2()
+        self.assertEqual(same_dtype_storage.tolist(), float8_storage.tolist())
+        self.assertNotEqual(same_dtype_storage.data_ptr(), float8_storage.data_ptr())
+
     def test_storage_byteswap(self):
         input = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
         swapped_8bytes = [7, 6, 5, 4, 3, 2, 1, 0, 15, 14, 13, 12, 11, 10, 9, 8]
